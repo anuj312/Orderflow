@@ -1,0 +1,102 @@
+/* Base tokens + reset. Dark theme matches the reference terminal (default). */
+:root {
+  --bg: #0a1118;
+  --bg-2: #0b131b;
+  --panel: #13212b;
+  --panel-2: #15232c;
+  --panel-3: #0f1b23;
+  --border: #294049;
+  --border-soft: #1d3038;
+  --bull: #46deb0;
+  --bull-2: #50e7aa;
+  --bull-dim: rgba(70, 222, 176, .14);
+  --bear: #ff8098;
+  --bear-2: #fa9ab1;
+  --bear-dim: rgba(255, 128, 152, .14);
+  --sage: #8eada6;
+  --sage-dim: #5f7a75;
+  --text: #e6f5f0;
+  --warn: #f2c66d;
+  --blue: #5aa9ff;
+  --glow: 0 0 0 1px rgba(70, 222, 176, .05), inset 0 1px 0 rgba(255, 255, 255, .025), 0 6px 22px rgba(0, 0, 0, .35);
+  --radius: 8px;
+  --radius-sm: 5px;
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+  --hdr-h: 46px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: radial-gradient(1200px 700px at 30% -10%, #10222a 0%, var(--bg) 55%) fixed, var(--bg);
+  color: var(--text);
+  font: 12px/1.35 var(--font);
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+button, a { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { margin: 0; font-weight: 700; }
+:focus-visible { outline: 2px solid var(--bull); outline-offset: 2px; border-radius: 4px; }
+
+.micro { font-size: 9.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--sage); font-weight: 600; }
+.micro.dim, .dim { color: var(--sage-dim); }
+.muted { color: var(--sage); font-weight: 600; }
+.bull { color: var(--bull); }
+.bear { color: var(--bear); }
+.flat { color: var(--sage); }
+.spacer { flex: 1; }
+.skip-link { position: absolute; left: -999px; top: 4px; z-index: 99; background: var(--panel); padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; }
+.skip-link:focus { left: 8px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 9px; border-radius: 999px;
+  border: 1px solid var(--border); background: rgba(255, 255, 255, .02); font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--sage); white-space: nowrap;
+}
+.pill-xs { height: 16px; padding: 0 6px; font-size: 8.5px; }
+.chip {
+  display: inline-flex; align-items: center; height: 16px; padding: 0 6px; border-radius: 4px; font-size: 8.5px;
+  font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--border);
+  color: var(--sage); background: rgba(255, 255, 255, .02); white-space: nowrap;
+}
+.chip[data-s="ACTIVE"], .chip[data-s="READY"], .chip[data-s="CONFIRMED"] { color: var(--bull); border-color: rgba(70,222,176,.45); background: var(--bull-dim); }
+.chip[data-s="FADING"], .chip[data-s="INVALID"], .chip[data-s="DIRECTION CHANGED"] { color: var(--bear); border-color: rgba(255,128,152,.45); background: var(--bear-dim); }
+.chip[data-s="STALE"], .chip[data-s="FEED WAIT"], .chip[data-s="DATA WAIT"] { color: var(--warn); border-color: rgba(242,198,109,.45); background: rgba(242,198,109,.08); }
+.chip[data-s="DEMO"] { color: #c7b6ff; border-color: rgba(167,139,250,.45); background: rgba(167,139,250,.1); }
+.chip[data-s="WAIT"], .chip[data-s="WATCH"], .chip[data-s="SIDEWAYS"], .chip[data-s="WARMUP"] { color: var(--sage); }
+
+.icon-btn {
+  display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 7px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--panel-3); color: var(--sage); text-decoration: none;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.icon-btn:hover { color: var(--text); border-color: var(--bull); }
+.icon-btn.txt { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; }
+.icon-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+.link-btn { background: none; border: 0; padding: 0; color: var(--bull); font-size: 10.5px; font-weight: 600; text-decoration: none; }
+.link-btn:disabled { color: var(--sage-dim); cursor: default; }
+.link-btn:not(:disabled):hover { text-decoration: underline; }
+
+.err-page { display: grid; place-items: center; height: 100vh; }
+.err-box { text-align: center; padding: 28px 36px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); box-shadow: var(--glow); }
+.err-box .logo { margin: 0 auto 12px; }
+.err-box h1 { font-size: 15px; letter-spacing: .1em; margin-bottom: 8px; }
+.err-box p { color: var(--sage); margin: 0 0 14px; }
+
+.logo {
+  width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-weight: 900; font-size: 12.5px;
+  color: #062019; background: linear-gradient(145deg, var(--bull-2), #2fb98e); letter-spacing: -.02em;
+  box-shadow: 0 0 14px rgba(70, 222, 176, .35);
+}
+
+/* Motion is ON by default; the header MOTION toggle (persisted) turns it off.
+   theme-init.js sets data-motion="off" only when the user chose it. */
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {
+  animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important;
+}
+html[data-motion="off"] .ray-spark, html[data-motion="off"] .ray-pulse, html[data-motion="off"] .ray-ring { display: none; }
+.motion-btn { font: 800 9.5px var(--font); letter-spacing: .1em; padding: 0 8px; }
+.motion-btn[aria-pressed="true"] { color: var(--bull); border-color: rgba(70, 222, 176, .5); }

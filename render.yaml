@@ -1,0 +1,25 @@
+# Optional Render blueprint. Read README "Deploying to Render" first:
+# the app has NO built-in user authentication. Put it behind real access control.
+services:
+  - type: web
+    name: orderflow-studio
+    runtime: python
+    plan: free   # ~0.1 CPU / 512 MB, sleeps when idle; use a paid plan for Kite mode
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: MARKET_MODE
+        value: demo
+      - key: HOST
+        value: 0.0.0.0
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: KITE_API_KEY
+        sync: false
+      - key: KITE_ACCESS_TOKEN
+        sync: false
+      - key: MARKET_FEED_TOKEN
+        sync: false
+      - key: HISTORY_CACHE_DIR
+        value: /tmp/orderflow-cache   # ephemeral; mount a paid persistent disk to keep it

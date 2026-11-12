@@ -1,0 +1,52 @@
+/* Adaptive tablet / phone layouts. Desktop (>=1280px) keeps the 4-column terminal. */
+@media (max-width: 1279px) {
+  body { overflow: auto; }
+  .terminal { height: auto; min-height: 100vh; }
+  .grid { grid-template-columns: minmax(170px, 23%) minmax(0, 1fr); grid-template-rows: 480px auto auto; }
+  .sector-rail { grid-row: 1; }
+  .flow-panel { grid-row: 1; }
+  .leaders { grid-column: 1 / -1; grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+  .lane { min-height: 360px; }
+  .picks { grid-column: 1 / -1; flex-direction: row; }
+  .picks-half { min-height: 300px; }
+  .picks-bear { border-top: 0; border-left: 1px solid var(--border-soft); }
+  .hdr-stat .micro { display: none; }
+}
+@media (max-width: 860px) {
+  .brand-sub { display: none; }
+  .hdr-right { gap: 8px; }
+  .viewer span:last-child { display: none; }
+  .market-pill { min-width: 0; }
+  .grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .sector-rail, .flow-panel { grid-row: auto; }
+  .sector-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 6px; padding: 0 8px; }
+  .flow-panel { height: 380px; }
+  .fc-nums { font-size: 34px; }
+  .leaders { grid-template-columns: 1fr; }
+  .lane { min-height: 0; }
+  .card-grid { grid-template-rows: none; grid-auto-rows: 122px; }
+  .picks { flex-direction: column; }
+  .picks-half { min-height: 0; }
+  .slots { grid-template-rows: none; grid-auto-rows: minmax(70px, auto); }
+  .picks-bear { border-left: 0; border-top: 1px solid var(--border-soft); }
+  .detail { padding: 8px; overflow-y: auto; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; transform: none; border-radius: 0; border: 0; }
+  @keyframes d-in { from { opacity: 0; } }
+  .d-sym { font-size: 26px; }
+  #dLtp { font-size: 18px; }
+  .d-score b { font-size: 20px; }
+  .d-stats { margin-left: 0; }
+  .d-chart-wrap { min-height: 440px; display: flex; flex-direction: column; }
+  .d-toolbar { position: relative; top: auto; right: auto; z-index: 3; margin: 6px; flex-wrap: wrap; flex: 0 0 auto; }
+  .d-canvas { position: relative; inset: auto; flex: 1 1 auto; min-height: 330px; height: auto; }
+  .d-legend { position: relative; left: auto; bottom: auto; max-width: none; margin: 6px; }
+  .d-status { position: relative; right: auto; bottom: auto; margin: 0 6px 6px; align-self: flex-start; }
+  .d-reason { white-space: normal; }
+}
+@media (max-width: 420px) {
+  .topbar { padding: 0 8px; }
+  .hdr-stat:first-child .hdr-val { display: none; }
+  .brand-name { font-size: 12px; letter-spacing: .08em; }
+  .card-grid { grid-template-columns: 1fr; }
+  .sector-list { grid-template-columns: 1fr; }
+  .d-actions .icon-btn { min-width: 26px; height: 26px; padding: 0 5px; }
+}
