@@ -1,4 +1,7 @@
-"""The exact symbol universe supplied for the project. NIFTY_50 is a cross-cutting watchlist."""
+"""Symbol universe: NSE F&O stocks (source: NSE fo_mktlots.csv, Nov-2026 contracts) grouped
+into 14 primary sectors. NIFTY_50 is a cross-cutting watchlist, not a counted sector.
+Nov-2026 refresh: removed non-F&O BAJAJHLDNG, DALBHARAT, IRCTC; ICICIPRULI -> ICICILIFE;
+added 23 further F&O stocks to their closest peer sector."""
 
 SECTOR_DEFINITIONS = {
     "METAL": [
@@ -14,17 +17,17 @@ SECTOR_DEFINITIONS = {
         "RELIANCE", "ONGC", "IOC", "BPCL", "OIL", "NTPC", "POWERGRID",
         "POWERINDIA", "TATAPOWER", "JSWENERGY", "ADANIGREEN", "ADANIENSOL", "ADANIPOWER",
         "NHPC", "IREDA", "SUZLON", "INOXWIND", "WAAREEENER", "PREMIERENE",
-        "PETRONET", "GAIL", "HINDPETRO",
+        "PETRONET", "GAIL", "HINDPETRO", "ENRIN", "GVT&D",
     ],
     "AUTO": [
         "BOSCHLTD", "TIINDIA", "HEROMOTOCO", "M&M", "EICHERMOT",
         "BAJAJ-AUTO", "ASHOKLEY", "MARUTI", "TVSMOTOR", "MOTHERSON",
-        "SONACOMS", "UNOMINDA", "TMPV", "HYUNDAI", "AMBER",
+        "SONACOMS", "UNOMINDA", "TMPV", "HYUNDAI", "AMBER", "ATHERENERG", "FORCEMOT",
     ],
     "IT": [
         "INFY", "TCS", "HCLTECH", "WIPRO", "TECHM", "LTM", "MPHASIS",
         "KPITTECH", "COFORGE", "PERSISTENT", "TATAELXSI", "OFSS", "CAMS",
-        "NAUKRI", "KAYNES",
+        "NAUKRI", "KAYNES", "SAGILITY", "SYRMA",
     ],
     "PHARMA": [
         "CIPLA", "ALKEM", "BIOCON", "DRREDDY", "MANKIND", "TORNTPHARM",
@@ -35,37 +38,40 @@ SECTOR_DEFINITIONS = {
         "HINDUNILVR", "ITC", "NESTLEIND", "BRITANNIA", "DABUR", "MARICO",
         "COLPAL", "GODREJCP", "TATACONSUM", "PATANJALI", "UNITDSPR", "RADICO",
         "VBL", "DMART", "NYKAA", "ETERNAL", "SWIGGY", "TITAN", "TRENT",
-        "VMM", "KALYANKJIL", "JUBLFOOD", "ASIANPAINT",
+        "VMM", "KALYANKJIL", "JUBLFOOD", "ASIANPAINT", "GODFRYPHLP",
     ],
     "CEMENT": [
-        "ULTRACEMCO", "SHREECEM", "AMBUJACEM", "DALBHARAT", "GRASIM", "ASTRAL",
+        "ULTRACEMCO", "SHREECEM", "AMBUJACEM", "GRASIM", "ASTRAL",
         "PIDILITIND", "SUPREMEIND",
     ],
     "FINSERVICE": [
-        "BAJFINANCE", "BAJAJFINSV", "BAJAJHLDNG", "ICICIPRULI", "ICICIGI", "SBILIFE",
+        "BAJFINANCE", "BAJAJFINSV", "ICICILIFE", "ICICIGI", "SBILIFE",
         "HDFCLIFE", "LICI", "LICHSGFIN", "PNBHOUSING", "MUTHOOTFIN", "MANAPPURAM",
         "CHOLAFIN", "PFC", "RECLTD", "MOTILALOFS", "HDFCAMC", "360ONE", "KFINTECH",
         "PAYTM", "POLICYBZR", "SBICARD", "JIOFIN", "SHRIRAMFIN", "ANGELONE",
-        "BSE", "CDSL", "MCX", "IRFC",
+        "BSE", "CDSL", "MCX", "IRFC", "ABCAPITAL", "LTF", "MFSL", "ANANDRATHI",
+        "NAM-INDIA", "IEX",
     ],
     "BANK": [
         "HDFCBANK", "ICICIBANK", "AXISBANK", "KOTAKBANK", "IDFCFIRSTB", "FEDERALBNK",
-        "INDUSINDBK", "AUBANK", "BANDHANBNK", "RBLBANK",
+        "INDUSINDBK", "AUBANK", "BANDHANBNK", "RBLBANK", "YESBANK", "CUB",
+        "KARURVYSYA", "UJJIVANSFB",
     ],
     "PSUBANK": [
         "SBIN", "PNB", "BANKBARODA", "CANBK", "UNIONBANK", "BANKINDIA", "INDIANB",
+        "MAHABANK",
     ],
     "DURABLES": [
         "INDUSTOWER", "HAVELLS", "KEI", "POLYCAB", "CROMPTON", "VOLTAS", "PGEL",
-        "DIXON", "SRF",
+        "DIXON", "SRF", "NAVINFLUOR", "IDEA",
     ],
     "LOGISTICS": [
-        "CONCOR", "DELHIVERY", "INDIGO", "INDHOTEL", "IRCTC", "BLUESTARCO",
-        "GMRAIRPORT", "PAGEIND", "UPL", "ADANIPORTS",
+        "CONCOR", "DELHIVERY", "INDIGO", "INDHOTEL", "BLUESTARCO",
+        "GMRAIRPORT", "PAGEIND", "UPL", "ADANIPORTS", "PIIND", "COROMANDEL",
     ],
     "DEFENCE": [
         "ABB", "BEL", "BDL", "BHEL", "CGPOWER", "CUMMINSIND", "HAL", "LT",
-        "MAZDOCK", "COCHINSHIP", "SIEMENS", "SOLARINDS",
+        "MAZDOCK", "COCHINSHIP", "SIEMENS", "SOLARINDS", "DATAPATTNS",
     ],
     "NIFTY_50": [
         "ADANIENT", "APOLLOHOSP", "ASIANPAINT", "AXISBANK", "BAJAJ-AUTO", "BAJFINANCE",

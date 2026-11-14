@@ -288,6 +288,9 @@ def create_app(cfg: Optional[Config] = None) -> FastAPI:
             response.headers.setdefault(k, v)
         if request.url.path.startswith("/api/"):
             response.headers.setdefault("Cache-Control", "no-store")
+        elif request.url.path.startswith("/static/"):
+            # Revalidate on every load (cheap 304 via ETag) so deploys show up immediately.
+            response.headers.setdefault("Cache-Control", "no-cache")
         return response
 
     @app.exception_handler(HTTPException)

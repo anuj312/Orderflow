@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from helpers import at
+from sectors import ALL_SYMBOLS
 from server import Config, create_app
 
 SECRET_KEY = "APIKEY_SHOULD_NEVER_LEAK_123"
@@ -46,7 +47,7 @@ def test_index_and_security_headers(demo):
 def test_universe_and_version(demo):
     c, _ = demo
     u = c.get("/api/universe").json()
-    assert u["count"] == 198 and len(u["primarySectors"]) == 14 and u["watchlists"] == ["NIFTY_50"]
+    assert u["count"] == len(ALL_SYMBOLS) and len(u["primarySectors"]) == 14 and u["watchlists"] == ["NIFTY_50"]
     v = c.get("/api/version").json()
     assert v["features"]["orderPlacement"] is False and v["features"]["ingestEnabled"] is False
 
@@ -59,8 +60,8 @@ def test_state_shape_demo_labels_and_counts(demo):
     assert len(s["leaders"]["bullish"]) == 6 and len(s["leaders"]["bearish"]) == 6
     assert len(s["picks"]["bullish"]["slots"]) == 3 and len(s["picks"]["bearish"]["slots"]) == 3
     u = s["universe"]
-    assert u["bullish"] + u["bearish"] == u["available"] == 198
-    assert sum(x["total"] for x in s["sectors"]) + len(s["watchlistOnly"]["symbols"]) == 198
+    assert u["bullish"] + u["bearish"] == u["available"] == len(ALL_SYMBOLS)
+    assert sum(x["total"] for x in s["sectors"]) + len(s["watchlistOnly"]["symbols"]) == len(ALL_SYMBOLS)
     recs = s["records"]
     assert all(r["momentumState"] == "DEMO" and r["momBasis"] == "DEMO" for r in recs.values() if r["available"])
     assert all(not slot.get("pickConfirmed") for side in ("bullish", "bearish") for slot in s["picks"][side]["slots"])
@@ -215,3 +216,12 @@ def test_one_feed_message_is_one_market_revision():
     st.apply_market_update([{"symbol": "INFY", "ltp": 100.0, "prevClose": 99.0, "ts": at(10, 29, 50)}],
                            [{"symbol": "INFY", "oi": 10, "ts": at(10, 29, 50)}])
     assert st.market_revision == 1  # identical data: no new observation
+
+
+def test_static_assets_revalidate_so_deploys_show_immediately(demo):
+    c, _ = demo
+    r = c.get("/static/chart.js")
+    assert r.status_code == 200 and r.headers["cache-control"] == "no-cache"
+    assert "etag" in r.headers
+    again = c.get("/static/chart.js", headers={"If-None-Match": r.headers["etag"]})
+    assert again.status_code == 304

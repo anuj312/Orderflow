@@ -39,7 +39,9 @@ class FakeKite:
                                  "low": 98, "close": 101, "volume": 7500})
                 cur -= timedelta(days=1)
             return list(reversed(rows))
-        target = now_ist().date()
+        # Use the scanner's session date (previous trading day at weekends / before 09:00),
+        # not the calendar date, so the test is independent of when it runs.
+        target = getattr(self, "target", None) or now_ist().date()
         cur, made = target, 0
         while made < 20:
             cur = previous_trading_day(cur)
@@ -81,11 +83,12 @@ def test_kite_bootstrap_mapping_subscription_history_and_ticks():
         feed._bootstrap()
     finally:
         threading.Thread.start = orig
-    assert store.unresolved == ["TMPV"] and len(store.mapped) == 197
+    assert store.unresolved == ["TMPV"] and len(store.mapped) == len(ALL_SYMBOLS) - 1
     assert store.feed["state"] == "CONNECTED"
     assert set(ticker.modes["quote"]) == {v["token"] for v in feed.eq.values()} and ticker.modes["full"] == [99]
     assert store.quotes["INFY"]["prevClose"] == 99.5 and store.quotes["INFY"]["oi"] == 5000
     target = store.session_date
+    kite.target = target
     feed._load_symbol("INFY", target)
     base = store.baselines["INFY"]
     assert base["historyStatus"] == "READY" and base["intradaySessions"] == 20

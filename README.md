@@ -1,6 +1,6 @@
 # ORDERFLOW STUDIO — 20-SESSION MARKET INTELLIGENCE · NSE
 
-A read-only intraday research scanner for **198 NSE symbols in 14 primary sectors** (plus the
+A read-only intraday research scanner for **218 NSE F&O stocks in 14 primary sectors** (plus the
 cross-sector NIFTY_50 watchlist, which is not counted as a sector). It runs as a local FastAPI server
 with a dense dark terminal UI in the browser.
 
@@ -254,7 +254,7 @@ checks:
 
 - no horizontal overflow
 - 14 sectors, 6 + 6 cards and 3 + 3 slots
-- 198 strands
+- one strand per stock (218)
 - sector filtering
 - detail open, pan → MANUAL, AUTO
 - timeframe switch and next symbol
@@ -274,7 +274,7 @@ market_store.py            thread-safe quotes/tapes/candles/baselines; marketDat
 market_time.py             IST / NSE session helpers (fixed +05:30, no tz database needed)
 kite_feed.py               Kite instruments, KiteTicker, throttled history, chart LRU (2)
 demo_feed.py               offline synthetic feed on a virtual session clock
-sectors.py                 the exact 198-symbol taxonomy (unchanged)
+sectors.py                 the 218-stock F&O taxonomy (Nov-2026 refresh)
 history_intelligence.py    ADR20 / ATR14 / 20D range / time-matched RVOL + gzip cache
 fresh_momentum.py          minute tape + 5/15/30/60 rolling windows + state machine
 momentum_rating.py         MOM 0..100 (+ separate demo formula)
@@ -314,7 +314,7 @@ can import `fresh_momentum`, `momentum_rating`, `orderblock_intelligence`, `hist
 - Set `KITE_API_KEY`, `KITE_ACCESS_TOKEN` and `MARKET_FEED_TOKEN` as secret env vars in the
   dashboard. `HOST=0.0.0.0`; Render injects `PORT`.
 - The filesystem is **ephemeral**, so the baseline cache under `/tmp` is lost on every deploy or
-  restart and history reloads (about 4 min for 198 symbols in Kite mode). Attach a paid persistent
+  restart and history reloads (about 4-5 min for 218 symbols in Kite mode). Attach a paid persistent
   disk and point `HISTORY_CACHE_DIR` at it to keep the cache.
 - The free plan (about 0.1 CPU / 512 MB) runs demo mode, but snapshots take longer, and the instance
   sleeps when idle, which drops the WebSocket. Use a paid instance for Kite mode. Memory stays

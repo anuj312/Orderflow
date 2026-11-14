@@ -4,15 +4,24 @@ from kite_feed import nearest_futures, resolve_equities, tick_to_updates
 from market_time import IST
 from sectors import ALL_SYMBOLS, PRIMARY_SECTORS, SECTOR_DEFINITIONS, SYMBOL_TO_SECTOR
 
-EXPECTED_COUNTS = {"METAL": 13, "REALTY": 8, "ENERGY": 22, "AUTO": 15, "IT": 15, "PHARMA": 16, "FMCG": 23,
-                   "CEMENT": 8, "FINSERVICE": 29, "BANK": 10, "PSUBANK": 7, "DURABLES": 9, "LOGISTICS": 10,
-                   "DEFENCE": 12, "NIFTY_50": 50}
+EXPECTED_COUNTS = {"METAL": 13, "REALTY": 8, "ENERGY": 24, "AUTO": 17, "IT": 17, "PHARMA": 16, "FMCG": 24,
+                   "CEMENT": 7, "FINSERVICE": 34, "BANK": 14, "PSUBANK": 8, "DURABLES": 11, "LOGISTICS": 11,
+                   "DEFENCE": 13, "NIFTY_50": 50}
+UNIVERSE_SIZE = 218   # NSE F&O stocks, Nov-2026 contract list
 
 
-def test_exact_198_unique_symbols():
-    assert len(ALL_SYMBOLS) == 198
-    assert len(set(ALL_SYMBOLS)) == 198
+def test_exact_unique_symbol_count():
+    assert len(ALL_SYMBOLS) == UNIVERSE_SIZE
+    assert len(set(ALL_SYMBOLS)) == UNIVERSE_SIZE
     assert ALL_SYMBOLS == sorted(ALL_SYMBOLS)
+
+
+def test_nov_2026_fno_refresh():
+    for gone in ("BAJAJHLDNG", "DALBHARAT", "IRCTC", "ICICIPRULI"):
+        assert gone not in ALL_SYMBOLS
+    for new, sec in (("ICICILIFE", "FINSERVICE"), ("YESBANK", "BANK"), ("MAHABANK", "PSUBANK"), ("GVT&D", "ENERGY"),
+                     ("NAM-INDIA", "FINSERVICE"), ("DATAPATTNS", "DEFENCE"), ("IDEA", "DURABLES")):
+        assert SYMBOL_TO_SECTOR[new] == sec
 
 
 def test_fourteen_primary_sectors_plus_nifty50_watchlist():
@@ -34,7 +43,7 @@ def test_no_double_counting_across_primary_sectors():
         for s in syms:
             assert s not in seen, f"{s} in {seen.get(s)} and {sec}"
             seen[s] = sec
-    assert len(seen) == 197  # + BHARTIARTL (NIFTY_50 only) = 198
+    assert len(seen) == UNIVERSE_SIZE - 1  # + BHARTIARTL (NIFTY_50 only)
 
 
 def test_symbol_to_sector_primary_and_watchlist_default():
