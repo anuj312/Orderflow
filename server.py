@@ -415,6 +415,20 @@ def create_app(cfg: Optional[Config] = None) -> FastAPI:
     return app
 
 
+_app_instance: Optional[FastAPI] = None
+
+
+def __getattr__(name: str):
+    """Lets `uvicorn server:app` work (e.g. on Render) without building the app at import
+    time, so tests and tools that import this module don't start a second runtime."""
+    global _app_instance
+    if name == "app":
+        if _app_instance is None:
+            _app_instance = create_app()
+        return _app_instance
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     cfg = Config.from_env()

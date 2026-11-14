@@ -169,6 +169,14 @@
     var ctx = this.ctx, L = this._layout(), cs = this.candles, vp = this.vp;
     var C = { bull: css('--bull'), bear: css('--bear'), sage: css('--sage'), dim: css('--sage-dim'), text: css('--text'),
               border: css('--border-soft'), blue: css('--blue'), warn: css('--warn') };
+    // Overlay backgrounds follow the theme: dark ink on the dark theme, white on light.
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    var INK = light ? '255,255,255' : '10,17,24';
+    var ink = function (a) { return 'rgba(' + INK + ',' + a + ')'; };
+    C.pivot = light ? '#8a6420' : '#c9a86a';
+    C.pivotRgb = light ? '138,100,32' : '201,168,106';
+    C.cross = light ? '#d5e3df' : '#29404a';
+    C.crossText = light ? '#0d2420' : C.text;
     ctx.clearRect(0, 0, L.w, L.h);
     if (!cs.length) return;
     var span = vp.end - vp.start, barW = L.plotW / span;
@@ -200,7 +208,7 @@
       var tw = ctx.measureText(text).width + 8;
       var yy = place(x, y - 8, tw, 15);
       if (yy == null) return;
-      ctx.fillStyle = bg || 'rgba(10,17,24,.82)'; ctx.fillRect(x, yy, tw, 15);
+      ctx.fillStyle = bg || ink(.86); ctx.fillRect(x, yy, tw, 15);
       ctx.fillStyle = color; ctx.fillText(text, x + 4, yy + 11);
     }
 
@@ -267,9 +275,9 @@
       Object.keys(lv).forEach(function (key) {
         var p = lv[key]; if (p < lo || p > hi) return;
         var py = Math.round(Y(p)) + 0.5;
-        ctx.strokeStyle = key === 'P' ? 'rgba(201,168,106,.75)' : 'rgba(201,168,106,.42)';
+        ctx.strokeStyle = 'rgba(' + C.pivotRgb + ',' + (key === 'P' ? .8 : .5) + ')';
         ctx.setLineDash(key === 'P' ? [] : [6, 4]); ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(L.plotW, py); ctx.stroke(); ctx.setLineDash([]);
-        label(key + ' ' + INR.format(p), 6, py, '#c9a86a', 'rgba(10,17,24,.6)');
+        label(key + ' ' + INR.format(p), 6, py, C.pivot, ink(.75));
       });
     }
     // volume bars
@@ -317,7 +325,7 @@
     }
 
     // right axis + tags
-    ctx.fillStyle = 'rgba(10,17,24,.55)'; ctx.fillRect(L.plotW, 0, L.axisW, L.h);
+    ctx.fillStyle = ink(light ? .7 : .55); ctx.fillRect(L.plotW, 0, L.axisW, L.h);
     ctx.font = '600 10px JetBrains Mono, Consolas, monospace'; ctx.fillStyle = C.sage; ctx.textAlign = 'right';
     for (k = 0; k <= steps; k++) { var pv = lo + pstep * k; ctx.fillText(INR.format(pv), L.w - 6, Y(pv) + 3); }
     var tags = [];
@@ -356,7 +364,7 @@
       ctx.beginPath(); ctx.moveTo(0, Math.round(hv.y) + 0.5); ctx.lineTo(L.plotW, Math.round(hv.y) + 0.5); ctx.stroke(); ctx.setLineDash([]);
       if (hv.y >= L.top && hv.y <= L.top + L.priceH) {
         var hp = hi - (hv.y - L.top) / L.priceH * (hi - lo);
-        ctx.fillStyle = '#29404a'; ctx.fillRect(L.plotW + 1, hv.y - 8, L.axisW - 2, 16);
+        ctx.fillStyle = C.cross; ctx.fillRect(L.plotW + 1, hv.y - 8, L.axisW - 2, 16);
         ctx.fillStyle = C.text; ctx.textAlign = 'right'; ctx.fillText(INR.format(hp), L.w - 5, hv.y + 4); ctx.textAlign = 'left';
       }
     }
@@ -365,7 +373,7 @@
               '  L ' + INR.format(hc.l) + '  C ' + INR.format(hc.c) + '  V ' + (hc.v != null ? VOLF.format(hc.v) : 'N/A') +
               (hc.complete ? '' : '  · PROVISIONAL') + (hc.partial ? '  · PARTIAL VOL' : '');
     ctx.font = '600 10.5px JetBrains Mono, Consolas, monospace';
-    ctx.fillStyle = 'rgba(10,17,24,.78)'; ctx.fillRect(8, 10, Math.min(L.plotW - 16, ctx.measureText(txt).width + 12), 18);
+    ctx.fillStyle = ink(.86); ctx.fillRect(8, 10, Math.min(L.plotW - 16, ctx.measureText(txt).width + 12), 18);
     ctx.fillStyle = hc.c >= hc.o ? C.bull : C.bear; ctx.fillText(txt, 14, 23);
   };
 
