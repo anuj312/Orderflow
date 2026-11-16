@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="referrer" content="no-referrer">
+  <title>OrderFlow Studio · 20-Session Market Intelligence · NSE</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/theme.css">
+  <link rel="stylesheet" href="/static/premium.css">
+  <link rel="stylesheet" href="/static/chart-premium-v3.css">
+  <link rel="stylesheet" href="/static/mobile.css">
+  <script src="/static/theme-init.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#leaders">Skip to leaders</a>
+<div class="terminal" id="terminal">
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">OF</div>
+      <div class="brand-text">
+        <div class="brand-name">ORDERFLOW STUDIO</div>
+        <div class="brand-sub">20-SESSION MARKET INTELLIGENCE · NSE</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-stat" title="Completed 20-session baselines / mapped symbol target">
+        <span class="micro">20D HISTORY</span>
+        <span class="hdr-val" id="histReady">— / —</span>
+        <span class="pill pill-xs" id="histStatus">LOADING</span>
+      </div>
+      <div class="hdr-stat" title="Quote updates received by the server">
+        <span class="micro">TICKS</span>
+        <span class="hdr-val" id="tickCount">0</span>
+      </div>
+      <span class="pill market-pill" id="marketPill" data-status="WAITING" role="status" aria-live="polite">WAITING</span>
+      <div class="viewer" title="Display label only — not proof of login">
+        <span class="avatar" aria-hidden="true">◐</span>
+        <span id="viewerLabel">VIEWER</span>
+      </div>
+      <button class="icon-btn motion-btn" id="motionToggle" type="button" aria-pressed="true" title="Animated flow on/off">MOTION</button>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle light/dark theme">
+        <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7"/></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="conn-banner" id="connBanner" hidden role="alert"></div>
+
+  <main class="grid" id="grid">
+    <!-- A. Sector rail -->
+    <section class="panel sector-rail" aria-labelledby="sectorTitle">
+      <div class="panel-head">
+        <h2 class="panel-title" id="sectorTitle">SECTOR STRENGTH</h2>
+        <span class="micro">CHANGE</span>
+      </div>
+      <ol class="sector-list" id="sectorList" aria-label="Sectors ranked by equal-weight average daily change"></ol>
+      <div class="rail-foot">
+        <button type="button" class="link-btn" id="showAll" disabled>Show all sectors</button>
+        <span class="micro" id="sectorCount">14 SECTORS TRACKED</span>
+      </div>
+    </section>
+
+    <!-- B. Directional flow -->
+    <section class="panel flow-panel" aria-labelledby="flowTitle">
+      <div class="panel-head flow-head">
+        <h2 class="panel-title" id="flowTitle">DIRECTIONAL FLOW <span class="muted">/ LIVE MAP</span></h2>
+        <div class="flow-legend">
+          <span class="lg lg-bull">BULLISH BREADTH</span>
+          <span class="lg lg-bear">BEARISH BREADTH</span>
+        </div>
+      </div>
+      <div class="flow-body" id="flowBody">
+        <svg id="flowSvg" class="flow-svg" viewBox="0 0 1000 620" preserveAspectRatio="none" role="img"
+             aria-label="Breadth map: strands from each sector to bullish and bearish destinations, one per stock"></svg>
+        <div class="flow-count" aria-live="off">
+          <div class="fc-nums"><span class="bull" id="univBull">—</span><span class="sep">/</span><span class="bear" id="univBear">—</span></div>
+          <div class="micro">STOCK UNIVERSE</div>
+          <div class="micro dim" id="univNote"></div>
+        </div>
+        <div class="flow-tip" id="flowTip" hidden></div>
+      </div>
+      <div class="panel-foot">
+        <span class="feed-dot" id="feedDot"></span><span id="feedText">CONNECTING…</span>
+        <span class="spacer"></span>
+        <span class="micro">MOMENTUM · NOT ORDER-BOOK DEPTH</span>
+      </div>
+    </section>
+
+    <!-- C. Top 6 lanes -->
+    <section class="leaders" id="leaders" aria-label="Top 6 momentum leaders">
+      <div class="panel lane lane-bull">
+        <div class="panel-head">
+          <h2 class="panel-title bull">TOP 6 BULLISH <span class="muted">/ MOMENTUM LEADERS</span></h2>
+          <span class="micro lane-note" id="bullNote">GLOBAL RANK</span>
+        </div>
+        <div class="card-grid" id="bullCards"></div>
+      </div>
+      <div class="panel lane lane-bear">
+        <div class="panel-head">
+          <h2 class="panel-title bear">TOP 6 BEARISH <span class="muted">/ MOMENTUM LEADERS</span></h2>
+          <span class="micro lane-note" id="bearNote">GLOBAL RANK</span>
+        </div>
+        <div class="card-grid" id="bearCards"></div>
+      </div>
+    </section>
+
+    <!-- D. Top 3 picks -->
+    <section class="panel picks" aria-label="Top 3 order-block qualified picks">
+      <div class="picks-half picks-bull">
+        <div class="panel-head"><h2 class="panel-title bull">↑ BULLISH PICKS</h2><span class="micro">TOP 3 · OB</span></div>
+        <div class="slots" id="bullSlots"></div>
+        <div class="picks-foot micro" id="bullPending"></div>
+      </div>
+      <div class="picks-half picks-bear">
+        <div class="panel-head"><h2 class="panel-title bear">↓ BEARISH PICKS</h2><span class="micro">TOP 3 · OB</span></div>
+        <div class="slots" id="bearSlots"></div>
+        <div class="picks-foot micro" id="bearPending"></div>
+      </div>
+    </section>
+  </main>
+  <svg class="ray-layer" id="rayLayer" aria-hidden="true" focusable="false"></svg>
+</div>
+
+<!-- Stock detail popup -->
+<div class="detail-backdrop" id="detailBackdrop" hidden></div>
+<div class="detail" id="detail" hidden role="dialog" aria-modal="true" aria-labelledby="dSymbol">
+  <div class="d-top">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <span>MARKET INTELLIGENCE</span><i>/</i><span>NSE</span><i>/</i><span id="dSector">—</span><i>/</i><b id="dCrumbSym">—</b>
+      <span class="crumb-tf" id="dCrumbTf">· 5M</span>
+    </nav>
+    <div class="d-actions">
+      <a class="icon-btn txt" id="dTv" target="_blank" rel="noopener noreferrer" href="#" title="Open on TradingView (5m)">TV ↗</a>
+      <button class="icon-btn" type="button" id="dFull" aria-label="Expand popup" aria-pressed="false" title="Expand / restore popup">⤢</button>
+      <button class="icon-btn" type="button" id="dMark" aria-label="Bookmark symbol" aria-pressed="false">☆</button>
+      <button class="icon-btn" type="button" id="dPrev" aria-label="Previous symbol">‹</button>
+      <button class="icon-btn" type="button" id="dNext" aria-label="Next symbol">›</button>
+      <button class="icon-btn close" type="button" id="dClose" aria-label="Close chart">✕</button>
+    </div>
+  </div>
+  <div class="d-summary">
+    <div class="d-sym" id="dSymbol">—</div>
+    <div class="d-price"><span id="dLtp">—</span><span class="d-chg" id="dChg">—</span></div>
+    <div class="d-score"><span class="micro">MOM SCORE</span><b id="dMom">—</b><span class="of">/100</span><span class="chip" id="dMomState">—</span></div>
+    <div class="d-score"><span class="micro">OB SCORE</span><b id="dOb">—</b><span class="of">/100</span><span class="chip" id="dObState">—</span></div>
+    <div class="d-stats" id="dStats"></div>
+  </div>
+  <div class="d-reason" id="dReason">—</div>
+  <div class="d-chart-wrap" id="dChartWrap">
+    <div class="d-toolbar" role="toolbar" aria-label="Chart controls">
+      <span class="micro">TF</span>
+      <div class="seg" id="dTf">
+        <button type="button" data-tf="5m" class="on">5m</button>
+        <button type="button" data-tf="15m">15m</button>
+        <button type="button" data-tf="30m">30m</button>
+        <button type="button" data-tf="1h">1h</button>
+      </div>
+      <button type="button" class="auto-btn on" id="dAuto" aria-pressed="true">AUTO</button>
+      <a class="tb-btn" id="dTv2" target="_blank" rel="noopener noreferrer" href="#">TradingView ↗</a>
+      <button type="button" class="tb-btn" id="dZoomIn" aria-label="Zoom in">+</button>
+      <button type="button" class="tb-btn" id="dZoomOut" aria-label="Zoom out">–</button>
+      <button type="button" class="tb-btn" id="dFit" aria-label="Fit to screen">FIT</button>
+      <button type="button" class="tb-btn" id="dFull2" aria-label="Fullscreen chart">⛶</button>
+    </div>
+    <canvas id="dCanvas" class="d-canvas" aria-label="Candlestick chart" role="img"></canvas>
+    <div class="d-wait" id="dWait" hidden></div>
+    <div class="d-legend" id="dLegend">
+      <button type="button" data-layer="ob" class="on"><i class="sw sw-ob"></i>Candidate OB</button>
+      <button type="button" data-layer="vwap" class="on"><i class="sw sw-vwap"></i>VWAP</button>
+      <button type="button" data-layer="sr" class="on"><i class="sw sw-sr"></i>S/R levels</button>
+      <button type="button" data-layer="marks" class="on"><i class="sw sw-mk"></i>OB + BOS / FVG / Sweep</button>
+      <button type="button" data-layer="vp" class="on"><i class="sw sw-vp"></i>VOLUME PROFILE ≈ (5M CANDLE EST.)</button>
+    </div>
+    <div class="d-status micro" id="dStatus">— / 90 CANDLES</div>
+  </div>
+  <div class="d-foot">These patterns are derived from completed candles. They are not verified institutional limit orders,
+    not actual aggressor delta, and not buy/sell instructions. Volume profile and delta are candle-based estimates.</div>
+</div>
+
+<script src="/static/viewport.js"></script>
+<script src="/static/chart.js"></script>
+<script src="/static/flow.js"></script>
+<script src="/static/rays.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

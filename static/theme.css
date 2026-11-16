@@ -1,0 +1,27 @@
+/* Light theme (sun). Dark is the default and matches the reference screenshots. */
+html[data-theme="light"] {
+  --bg: #eef4f2; --bg-2: #f5f9f8; --panel: #ffffff; --panel-2: #f7fbfa; --panel-3: #f1f6f5;
+  --border: #bfd3cd; --border-soft: #d9e6e2; --bull: #0f9f76; --bull-2: #12b386; --bull-dim: rgba(15,159,118,.1);
+  --bear: #d4385a; --bear-2: #e0557a; --bear-dim: rgba(212,56,90,.09); --sage: #50706a; --sage-dim: #85a29c;
+  --text: #0d2420; --warn: #a8740c; --blue: #2b6fd6;
+  --glow: 0 1px 2px rgba(13,36,32,.06), 0 6px 18px rgba(13,36,32,.06);
+}
+html[data-theme="light"] body { background: var(--bg); }
+html[data-theme="light"] .topbar { background: linear-gradient(180deg, #ffffff, #f3f8f6); }
+html[data-theme="light"] .panel { background: linear-gradient(180deg, var(--panel-2), var(--panel)); }
+html[data-theme="light"] .flow-panel { background: linear-gradient(118deg, #e4f4ef 0%, #f3f8f7 50%, #f8e9ee 100%); }
+html[data-theme="light"] .flow-svg .node rect { fill: rgba(255,255,255,.88); }
+html[data-theme="light"] .card, html[data-theme="light"] .slot { background: rgba(255,255,255,.75); }
+html[data-theme="light"] .card:hover, html[data-theme="light"] .slot.filled:hover { background: #fff; }
+html[data-theme="light"] .lane-bull, html[data-theme="light"] .lane-bear { background: var(--panel); }
+html[data-theme="light"] .sec-bars i:not(.b):not(.r) { background: #dbe7e3; }
+html[data-theme="light"] .detail { background: var(--bg); box-shadow: 0 24px 70px rgba(13, 36, 32, .28); }
+html[data-theme="light"] .detail-backdrop { background: rgba(13, 36, 32, .35); }
+html[data-theme="light"] .d-chart-wrap { background: linear-gradient(180deg, #f4faf7, #eef6f3); }
+html[data-theme="light"] .d-toolbar, html[data-theme="light"] .d-legend button,
+html[data-theme="light"] .d-status, html[data-theme="light"] .flow-tip { background: rgba(255,255,255,.92); }
+html[data-theme="light"] .d-reason { background: #fff; }
+html[data-theme="light"] .fc-nums { text-shadow: none; }
+.ico-sun { display: none; }
+html[data-theme="light"] .ico-sun { display: block; }
+html[data-theme="light"] .ico-moon { display: none; }
