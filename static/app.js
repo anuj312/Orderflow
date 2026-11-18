@@ -279,6 +279,7 @@
       var os0 = $('dObState'); os0.textContent = r.obState || '—'; os0.dataset.s = r.obState || '';
       $('dReason').textContent = 'Loading ' + d.tf + ' chart and order-block analysis…';
       $('dStats').innerHTML = '';
+      paintHeader(r.sector, r.dayChangePct, r.mom, r.stateChip, r.obQualityScore, r.obState);
     }
     $('dTv').href = tvUrl(sym); $('dTv2').href = tvUrl(sym);
     var bm = STATE.bookmarks.has(sym); $('dMark').setAttribute('aria-pressed', String(bm)); $('dMark').textContent = bm ? '★' : '☆';
@@ -316,6 +317,15 @@
 
   function stat(label, value, klass) { return '<div><span class="micro">' + label + '</span><b class="' + (klass || '') + '">' + value + '</b></div>'; }
 
+  // Drives the premium header styling: side accent, sector chip, card states and score meters.
+  function paintHeader(sector, dayChange, mom, momChip, ob, obState) {
+    $('dSummary').dataset.side = dayChange == null ? '' : (dayChange >= 0 ? 'bull' : 'bear');
+    if (sector != null) $('dSectorChip').textContent = sector;
+    var mc = $('dMomCard'); mc.dataset.s = momChip || ''; mc.style.setProperty('--v', mom == null ? 0 : mom);
+    var oc = $('dObCard'); oc.dataset.s = obState || ''; oc.style.setProperty('--v', ob == null ? 0 : ob);
+    $('dReason').dataset.s = obState || '';
+  }
+
   function renderDetail(j, keepView) {
     var s = j.summary || {}, ob = j.ob || {}, det = j.details || {};
     $('dSector').textContent = j.sector; $('dCrumbTf').textContent = '· ' + j.timeframe.toUpperCase();
@@ -340,6 +350,7 @@
     if (j.demo) reason += ' <span class="dim">· DEMO synthetic data</span>';
     if (s.momentumState && s.freshReason) reason += ' <span class="dim">· ' + esc(s.freshReason) + '</span>';
     $('dReason').innerHTML = reason;
+    paintHeader(j.sector, s.dayChangePct, s.mom, s.stateChip, ob.obQualityScore, ob.obState);
     var wait = $('dWait');
     if (!j.candles.length) { wait.hidden = false; wait.textContent = j.timing.waiting || 'Waiting for candles.'; }
     else wait.hidden = true;
@@ -361,6 +372,8 @@
     $('dLtp').textContent = '₹' + INR.format(r.ltp);
     var chg = $('dChg'); chg.textContent = pct(r.dayChangePct); chg.className = 'd-chg ' + cls(r.dayChangePct);
     $('dMom').textContent = dash(r.mom);
+    $('dSummary').dataset.side = r.dayChangePct >= 0 ? 'bull' : 'bear';
+    $('dMomCard').style.setProperty('--v', r.mom == null ? 0 : r.mom);
     chart.patchLive(r.ltp);
   }
 

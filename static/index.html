@@ -142,11 +142,21 @@
       <button class="icon-btn close" type="button" id="dClose" aria-label="Close chart">✕</button>
     </div>
   </div>
-  <div class="d-summary">
-    <div class="d-sym" id="dSymbol">—</div>
-    <div class="d-price"><span id="dLtp">—</span><span class="d-chg" id="dChg">—</span></div>
-    <div class="d-score"><span class="micro">MOM SCORE</span><b id="dMom">—</b><span class="of">/100</span><span class="chip" id="dMomState">—</span></div>
-    <div class="d-score"><span class="micro">OB SCORE</span><b id="dOb">—</b><span class="of">/100</span><span class="chip" id="dObState">—</span></div>
+  <div class="d-summary" id="dSummary">
+    <div class="d-id">
+      <div class="d-symrow"><div class="d-sym" id="dSymbol">—</div><span class="d-sector-chip" id="dSectorChip">—</span></div>
+      <div class="d-price"><span id="dLtp">—</span><span class="d-chg" id="dChg">—</span></div>
+    </div>
+    <div class="d-score mom" id="dMomCard">
+      <div class="d-score-top"><span class="micro">MOM SCORE</span><span class="chip" id="dMomState">—</span></div>
+      <div class="d-score-val"><b id="dMom">—</b><span class="of">/100</span></div>
+      <div class="d-meter" aria-hidden="true"><i></i></div>
+    </div>
+    <div class="d-score ob" id="dObCard">
+      <div class="d-score-top"><span class="micro">OB SCORE</span><span class="chip" id="dObState">—</span></div>
+      <div class="d-score-val"><b id="dOb">—</b><span class="of">/100</span></div>
+      <div class="d-meter" aria-hidden="true"><i></i></div>
+    </div>
     <div class="d-stats" id="dStats"></div>
   </div>
   <div class="d-reason" id="dReason">—</div>

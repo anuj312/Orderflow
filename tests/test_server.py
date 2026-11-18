@@ -179,6 +179,8 @@ def test_sse_stream_sends_retry_and_snapshot(demo):
     c, rt = demo
 
     class FakeRequest:
+        headers = {}
+
         async def is_disconnected(self):
             return False
 
@@ -189,11 +191,56 @@ def test_sse_stream_sends_retry_and_snapshot(demo):
         it = resp.body_iterator
         chunks = [await it.__anext__(), await it.__anext__()]
         await it.aclose()
-        return chunks
+        return chunks, resp.headers
 
-    chunks = asyncio.run(first_chunks())
+    chunks, headers = asyncio.run(first_chunks())
     assert chunks[0].startswith("retry:") and chunks[1].startswith("event: snapshot")
+    assert "content-encoding" not in headers  # client did not ask for gzip
     assert len(rt.subscribers) == 0  # subscriber queue released on close
+
+
+def test_sse_stream_is_gzipped_and_each_event_flushed(demo):
+    import asyncio
+    import json as _json
+    import zlib
+    c, rt = demo
+    rt.publish_once()
+
+    class FakeRequest:
+        headers = {"accept-encoding": "gzip, deflate, br"}
+
+        async def is_disconnected(self):
+            return False
+
+    endpoint = next(r.endpoint for r in c.app.routes if getattr(r, "path", "") == "/api/events")
+
+    async def first_chunks():
+        resp = await endpoint(FakeRequest())
+        it = resp.body_iterator
+        chunks = [await it.__anext__(), await it.__anext__()]
+        await it.aclose()
+        return chunks, resp.headers
+
+    chunks, headers = asyncio.run(first_chunks())
+    assert headers["content-encoding"] == "gzip" and headers["content-type"].startswith("text/event-stream")
+    d = zlib.decompressobj(31)
+    first = d.decompress(chunks[0]).decode()
+    assert first.startswith("retry:")          # flushed on its own, no waiting for the next event
+    event = d.decompress(chunks[1]).decode()
+    assert event.startswith("event: snapshot") and event.endswith("\n\n")
+    snap = _json.loads(event.split("data: ", 1)[1])
+    assert snap["universe"]["available"] == len(ALL_SYMBOLS)
+    assert len(chunks[1]) < len(event) * 0.3  # compressed to under 30% of the raw size
+    assert len(rt.subscribers) == 0
+
+
+def test_json_responses_are_gzipped(demo):
+    c, _ = demo
+    r = c.get("/api/symbol/INFY?timeframe=5m", headers={"Accept-Encoding": "gzip"})
+    assert r.status_code == 200 and r.headers["content-encoding"] == "gzip"
+    assert r.json()["symbol"] == "INFY"
+    plain = c.get("/api/version", headers={"Accept-Encoding": "identity"})
+    assert "content-encoding" not in plain.headers
 
 
 def test_session_rollover_clears_tapes_and_picks(demo):

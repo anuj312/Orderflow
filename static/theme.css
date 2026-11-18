@@ -20,7 +20,9 @@ html[data-theme="light"] .detail-backdrop { background: rgba(13, 36, 32, .35); }
 html[data-theme="light"] .d-chart-wrap { background: linear-gradient(180deg, #f4faf7, #eef6f3); }
 html[data-theme="light"] .d-toolbar, html[data-theme="light"] .d-legend button,
 html[data-theme="light"] .d-status, html[data-theme="light"] .flow-tip { background: rgba(255,255,255,.92); }
-html[data-theme="light"] .d-reason { background: #fff; }
+html[data-theme="light"] .d-summary { box-shadow: 0 1px 2px rgba(13,36,32,.05), 0 8px 22px rgba(13,36,32,.07); }
+html[data-theme="light"] .d-score, html[data-theme="light"] .d-stats > div { background: #fff; }
+html[data-theme="light"] .d-score.mom[data-s="DEMO"] { --acc: #6d4fd8; }
 html[data-theme="light"] .fc-nums { text-shadow: none; }
 .ico-sun { display: none; }
 html[data-theme="light"] .ico-sun { display: block; }

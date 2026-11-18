@@ -31,10 +31,12 @@
   .picks-bear { border-left: 0; border-top: 1px solid var(--border-soft); }
   .detail { padding: 8px; overflow-y: auto; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; transform: none; border-radius: 0; border: 0; }
   @keyframes d-in { from { opacity: 0; } }
-  .d-sym { font-size: 26px; }
+  .d-sym { font-size: 24px; }
   #dLtp { font-size: 18px; }
-  .d-score b { font-size: 20px; }
-  .d-stats { margin-left: 0; }
+  .d-score b { font-size: 22px; }
+  .d-id { flex: 1 1 100%; }
+  .d-score { flex: 1 1 140px; min-width: 0; }
+  .d-stats { margin-left: 0; flex: 1 1 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .d-chart-wrap { min-height: 440px; display: flex; flex-direction: column; }
   .d-toolbar { position: relative; top: auto; right: auto; z-index: 3; margin: 6px; flex-wrap: wrap; flex: 0 0 auto; }
   .d-canvas { position: relative; inset: auto; flex: 1 1 auto; min-height: 330px; height: auto; }

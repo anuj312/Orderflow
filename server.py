@@ -10,6 +10,7 @@ import json
 import logging
 import math
 import os
+import zlib
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -18,6 +19,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
@@ -276,6 +278,9 @@ def create_app(cfg: Optional[Config] = None) -> FastAPI:
     app = FastAPI(title=APP_NAME, version=APP_VERSION, lifespan=lifespan, docs_url=None, redoc_url=None,
                   openapi_url=None)
     app.state.runtime = rt
+    # Compress JSON (chart data, /api/state) and static files. The SSE stream is compressed
+    # separately in /api/events because this middleware deliberately skips text/event-stream.
+    app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
 
     @app.middleware("http")
     async def headers_mw(request: Request, call_next):
@@ -377,8 +382,20 @@ def create_app(cfg: Optional[Config] = None) -> FastAPI:
             finally:
                 rt.subscribers.discard(q)
 
-        return StreamingResponse(gen(), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+        headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Vary": "Accept-Encoding"}
+        if "gzip" not in (request.headers.get("accept-encoding") or "").lower():
+            return StreamingResponse(gen(), media_type="text/event-stream", headers=headers)
+
+        async def gzipped():
+            # One gzip stream per connection. Z_SYNC_FLUSH after every event pushes it to the
+            # browser immediately (no buffering delay) while still compressing ~85%.
+            # Starlette's GZipMiddleware skips text/event-stream, so this is done here.
+            comp = zlib.compressobj(6, zlib.DEFLATED, 31)
+            async for chunk in gen():
+                yield comp.compress(chunk.encode("utf-8")) + comp.flush(zlib.Z_SYNC_FLUSH)
+
+        headers["Content-Encoding"] = "gzip"
+        return StreamingResponse(gzipped(), media_type="text/event-stream", headers=headers)
 
     @app.post("/api/ingest")
     async def ingest(request: Request, x_feed_token: Optional[str] = Header(default=None)):
