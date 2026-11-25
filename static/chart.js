@@ -92,7 +92,8 @@
       this.canvas.width = w * dpr; this.canvas.height = h * dpr;
     }
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var axisW = 70, axisH = 22, top = 46;
+    // Controls now live in bars above/below the canvas, so only the OHLC readout needs top space.
+    var axisW = 78, axisH = 24, top = 38;
     var plotW = w - axisW, plotH = h - axisH - top;
     var volH = Math.round(plotH * 0.16);
     return { w: w, h: h, top: top, plotW: plotW, priceH: plotH - volH - 6, volTop: top + plotH - volH, volH: volH, axisW: axisW };
@@ -177,6 +178,17 @@
     C.pivotRgb = light ? '138,100,32' : '201,168,106';
     C.cross = light ? '#d5e3df' : '#29404a';
     C.crossText = light ? '#0d2420' : C.text;
+    var rrect = function (x, y, w, h, r) {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, y, w, h, Math.max(0, Math.min(r, w / 2, h / 2))); else ctx.rect(x, y, w, h);
+    };
+    var hexA = function (hex, a) {
+      var m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+      if (!m) return hex;
+      var n = parseInt(m[1], 16);
+      return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+    };
+    var MONO = 'JetBrains Mono, Cascadia Mono, Consolas, monospace';
     ctx.clearRect(0, 0, L.w, L.h);
     if (!cs.length) return;
     var span = vp.end - vp.start, barW = L.plotW / span;
@@ -203,20 +215,22 @@
       }
       return null;
     }
+    // Rounded pill labels with a coloured hairline border.
     function label(text, x, y, color, bg) {
-      ctx.font = '700 10px Inter, Segoe UI, sans-serif';
-      var tw = ctx.measureText(text).width + 8;
-      var yy = place(x, y - 8, tw, 15);
+      ctx.font = '700 10.5px Inter, Segoe UI, sans-serif';
+      var tw = ctx.measureText(text).width + 14;
+      var yy = place(x, y - 9, tw, 18);
       if (yy == null) return;
-      ctx.fillStyle = bg || ink(.86); ctx.fillRect(x, yy, tw, 15);
-      ctx.fillStyle = color; ctx.fillText(text, x + 4, yy + 11);
+      rrect(x, yy, tw, 18, 9); ctx.fillStyle = bg || ink(.9); ctx.fill();
+      ctx.strokeStyle = hexA(color, .55); ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = color; ctx.fillText(text, x + 7, yy + 12.5);
     }
 
-    // grid
-    ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.globalAlpha = 0.55;
+    // grid (fine dotted)
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.globalAlpha = 0.6; ctx.setLineDash([2, 5]);
     var steps = 6, pstep = (hi - lo) / steps;
     for (k = 1; k < steps; k++) { var gy = Math.round(Y(lo + pstep * k)) + 0.5; ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(L.plotW, gy); ctx.stroke(); }
-    ctx.globalAlpha = 1;
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
     // session separators
     ctx.strokeStyle = C.border; ctx.setLineDash([2, 4]);
     for (k = Math.max(1, i0); k <= i1; k++) {
@@ -280,12 +294,17 @@
         label(key + ' ' + INR.format(p), 6, py, C.pivot, ink(.75));
       });
     }
-    // volume bars
+    // volume bars: vertical gradient, rounded tops
+    var gBull = ctx.createLinearGradient(0, L.volTop, 0, L.volTop + L.volH);
+    gBull.addColorStop(0, hexA(C.bull, .62)); gBull.addColorStop(1, hexA(C.bull, .1));
+    var gBear = ctx.createLinearGradient(0, L.volTop, 0, L.volTop + L.volH);
+    gBear.addColorStop(0, hexA(C.bear, .62)); gBear.addColorStop(1, hexA(C.bear, .1));
+    var vbw = Math.max(1, barW * 0.68);
     for (k = i0; k <= i1; k++) {
       var cv = cs[k]; if (cv.v == null || !vmax) continue;
-      var vh = cv.v / vmax * L.volH;
-      ctx.fillStyle = cv.c >= cv.o ? 'rgba(70,222,176,.38)' : 'rgba(255,128,152,.38)';
-      ctx.fillRect(X(k) - barW * 0.36, L.volTop + L.volH - vh, Math.max(1, barW * 0.72), vh);
+      var vh = Math.max(1, cv.v / vmax * L.volH);
+      ctx.fillStyle = cv.c >= cv.o ? gBull : gBear;
+      rrect(X(k) - vbw / 2, L.volTop + L.volH - vh, vbw, vh, vbw >= 4 ? 2 : 0); ctx.fill();
     }
     // VWAP
     if (this.layers.vwap) {
@@ -301,14 +320,14 @@
       ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1;
     }
     // candles
-    var bw = Math.max(1, barW * 0.64);
+    var bw = Math.max(1, barW * 0.7), br = bw >= 5 ? 1.5 : 0;
     for (k = i0; k <= i1; k++) {
       var cc = cs[k], up = cc.c >= cc.o, col = up ? C.bull : C.bear, x = X(k);
-      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.globalAlpha = cc.complete ? 1 : 0.6;
+      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.globalAlpha = cc.complete ? 1 : 0.65; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(Math.round(x) + 0.5, Y(cc.h)); ctx.lineTo(Math.round(x) + 0.5, Y(cc.l)); ctx.stroke();
       var yo = Y(cc.o), yc = Y(cc.c), bh = Math.max(1, Math.abs(yc - yo));
-      if (cc.complete) ctx.fillRect(x - bw / 2, Math.min(yo, yc), bw, bh);
-      else ctx.strokeRect(x - bw / 2 + 0.5, Math.min(yo, yc) + 0.5, bw - 1, bh);
+      if (cc.complete) { rrect(x - bw / 2, Math.min(yo, yc), bw, bh, br); ctx.fill(); }
+      else { rrect(x - bw / 2 + 0.5, Math.min(yo, yc) + 0.5, bw - 1, bh, br); ctx.stroke(); }
       ctx.globalAlpha = 1;
     }
     // BOS + sweep
@@ -326,25 +345,31 @@
 
     // right axis + tags
     ctx.fillStyle = ink(light ? .7 : .55); ctx.fillRect(L.plotW, 0, L.axisW, L.h);
-    ctx.font = '600 10px JetBrains Mono, Consolas, monospace'; ctx.fillStyle = C.sage; ctx.textAlign = 'right';
-    for (k = 0; k <= steps; k++) { var pv = lo + pstep * k; ctx.fillText(INR.format(pv), L.w - 6, Y(pv) + 3); }
+    ctx.strokeStyle = C.border; ctx.beginPath(); ctx.moveTo(L.plotW + 0.5, 0); ctx.lineTo(L.plotW + 0.5, L.h); ctx.stroke();
+    ctx.font = '600 10.5px ' + MONO; ctx.fillStyle = C.sage; ctx.textAlign = 'right';
+    for (k = 0; k <= steps; k++) { var pv = lo + pstep * k; ctx.fillText(INR.format(pv), L.w - 7, Y(pv) + 3.5); }
     var tags = [];
     var live = this.livePrice != null ? this.livePrice : cs[cs.length - 1].c;
     var lastC = cs[cs.length - 1];
     tags.push({ p: live, text: INR.format(live), col: live >= (d.summary && d.summary.prevClose || lastC.o) ? C.bull : C.bear, fg: '#06140f' });
     if (this.layers.vwap && lastC.vwap != null) tags.push({ p: lastC.vwap, text: INR.format(lastC.vwap), col: C.blue, fg: '#06101a' });
     tags = tags.filter(function (t) { return t.p >= lo && t.p <= hi; }).map(function (t) { t.y = Y(t.p); return t; }).sort(function (a, b) { return a.y - b.y; });
-    for (k = 1; k < tags.length; k++) if (tags[k].y - tags[k - 1].y < 15) tags[k].y = tags[k - 1].y + 15;
+    for (k = 1; k < tags.length; k++) if (tags[k].y - tags[k - 1].y < 22) tags[k].y = tags[k - 1].y + 22;
     if (live >= lo && live <= hi) {
       var ly = Math.round(Y(live)) + 0.5; ctx.strokeStyle = tags[0] ? tags.find(function (t) { return t.p === live; }).col : C.text;
       ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(L.plotW, ly); ctx.stroke(); ctx.setLineDash([]);
     }
+    // arrow-shaped price tags pointing at the line
     tags.forEach(function (t) {
-      ctx.fillStyle = t.col; ctx.fillRect(L.plotW + 1, t.y - 8, L.axisW - 2, 16);
-      ctx.fillStyle = t.fg; ctx.font = '700 10px JetBrains Mono, Consolas, monospace'; ctx.fillText(t.text, L.w - 5, t.y + 4);
+      var x0 = L.plotW + 2, th = 20, yT = t.y - th / 2, xr = L.w - 3;
+      ctx.beginPath(); ctx.moveTo(x0, t.y); ctx.lineTo(x0 + 7, yT); ctx.lineTo(xr - 4, yT);
+      ctx.quadraticCurveTo(xr, yT, xr, yT + 4); ctx.lineTo(xr, yT + th - 4); ctx.quadraticCurveTo(xr, yT + th, xr - 4, yT + th);
+      ctx.lineTo(x0 + 7, yT + th); ctx.closePath();
+      ctx.fillStyle = t.col; ctx.fill();
+      ctx.fillStyle = t.fg; ctx.font = '800 11px ' + MONO; ctx.fillText(t.text, L.w - 8, t.y + 4);
     });
     // time axis
-    ctx.textAlign = 'center'; ctx.fillStyle = C.sage; ctx.font = '600 10px JetBrains Mono, Consolas, monospace';
+    ctx.textAlign = 'center'; ctx.fillStyle = C.sage; ctx.font = '600 10.5px ' + MONO;
     var every = Math.max(1, Math.ceil(80 / barW)), lastX = -1e9;
     for (k = i0; k <= i1; k++) {
       if (k % every) continue;
@@ -364,17 +389,32 @@
       ctx.beginPath(); ctx.moveTo(0, Math.round(hv.y) + 0.5); ctx.lineTo(L.plotW, Math.round(hv.y) + 0.5); ctx.stroke(); ctx.setLineDash([]);
       if (hv.y >= L.top && hv.y <= L.top + L.priceH) {
         var hp = hi - (hv.y - L.top) / L.priceH * (hi - lo);
-        ctx.fillStyle = C.cross; ctx.fillRect(L.plotW + 1, hv.y - 8, L.axisW - 2, 16);
-        ctx.fillStyle = C.text; ctx.textAlign = 'right'; ctx.fillText(INR.format(hp), L.w - 5, hv.y + 4); ctx.textAlign = 'left';
+        rrect(L.plotW + 2, hv.y - 10, L.axisW - 5, 20, 5); ctx.fillStyle = C.cross; ctx.fill();
+        ctx.font = '700 11px ' + MONO; ctx.fillStyle = C.crossText; ctx.textAlign = 'right';
+        ctx.fillText(INR.format(hp), L.w - 8, hv.y + 4); ctx.textAlign = 'left';
       }
     }
-    var hc = cs[hi_];
-    var txt = DAYF.format(hc.t * 1000) + ' ' + TIMEF.format(hc.t * 1000) + ' IST   O ' + INR.format(hc.o) + '  H ' + INR.format(hc.h) +
-              '  L ' + INR.format(hc.l) + '  C ' + INR.format(hc.c) + '  V ' + (hc.v != null ? VOLF.format(hc.v) : 'N/A') +
-              (hc.complete ? '' : '  · PROVISIONAL') + (hc.partial ? '  · PARTIAL VOL' : '');
-    ctx.font = '600 10.5px JetBrains Mono, Consolas, monospace';
-    ctx.fillStyle = ink(.86); ctx.fillRect(8, 10, Math.min(L.plotW - 16, ctx.measureText(txt).width + 12), 18);
-    ctx.fillStyle = hc.c >= hc.o ? C.bull : C.bear; ctx.fillText(txt, 14, 23);
+    // OHLC readout: segmented pill, muted labels and bright values
+    var hc = cs[hi_], hcol = hc.c >= hc.o ? C.bull : C.bear;
+    var cpct = hc.o ? (hc.c / hc.o - 1) * 100 : 0;
+    var items = [[DAYF.format(hc.t * 1000) + ' ' + TIMEF.format(hc.t * 1000) + ' IST', C.sage, 14]];
+    var add = function (lbl, val, col) { items.push([lbl, C.dim, 5]); items.push([val, col || C.text, 12]); };
+    add('O', INR.format(hc.o)); add('H', INR.format(hc.h)); add('L', INR.format(hc.l)); add('C', INR.format(hc.c), hcol);
+    items.push([(cpct >= 0 ? '+' : '') + cpct.toFixed(2) + '%', hcol, 12]);
+    add('V', hc.v != null ? VOLF.format(hc.v) : 'N/A');
+    if (!hc.complete) items.push(['PROVISIONAL', C.warn, 10]);
+    if (hc.partial) items.push(['PARTIAL VOL', C.warn, 10]);
+    ctx.font = '600 11px ' + MONO;
+    var px = 10, py = 8, ph = 24, tot = 22;
+    items.forEach(function (it) { tot += ctx.measureText(it[0]).width + it[2]; });
+    tot = Math.min(tot, L.plotW - 20);
+    rrect(px, py, tot, ph, 12); ctx.fillStyle = ink(.9); ctx.fill();
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.arc(px + 12, py + ph / 2, 3.5, 0, Math.PI * 2); ctx.fillStyle = hcol; ctx.fill();
+    ctx.save(); rrect(px, py, tot, ph, 12); ctx.clip();
+    var cx = px + 22;
+    items.forEach(function (it) { ctx.fillStyle = it[1]; ctx.fillText(it[0], cx, py + 16); cx += ctx.measureText(it[0]).width + it[2]; });
+    ctx.restore();
   };
 
   window.OFChart = OFChart;

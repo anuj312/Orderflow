@@ -162,6 +162,8 @@
   <div class="d-reason" id="dReason">—</div>
   <div class="d-chart-wrap" id="dChartWrap">
     <div class="d-toolbar" role="toolbar" aria-label="Chart controls">
+      <div class="d-status micro" id="dStatus">— / 90 CANDLES</div>
+      <span class="tb-spacer"></span>
       <span class="micro">TF</span>
       <div class="seg" id="dTf">
         <button type="button" data-tf="5m" class="on">5m</button>
@@ -178,6 +180,7 @@
     </div>
     <canvas id="dCanvas" class="d-canvas" aria-label="Candlestick chart" role="img"></canvas>
     <div class="d-wait" id="dWait" hidden></div>
+    <div class="d-chart-foot">
     <div class="d-legend" id="dLegend">
       <button type="button" data-layer="ob" class="on"><i class="sw sw-ob"></i>Candidate OB</button>
       <button type="button" data-layer="vwap" class="on"><i class="sw sw-vwap"></i>VWAP</button>
@@ -185,7 +188,7 @@
       <button type="button" data-layer="marks" class="on"><i class="sw sw-mk"></i>OB + BOS / FVG / Sweep</button>
       <button type="button" data-layer="vp" class="on"><i class="sw sw-vp"></i>VOLUME PROFILE ≈ (5M CANDLE EST.)</button>
     </div>
-    <div class="d-status micro" id="dStatus">— / 90 CANDLES</div>
+    </div>
   </div>
   <div class="d-foot">These patterns are derived from completed candles. They are not verified institutional limit orders,
     not actual aggressor delta, and not buy/sell instructions. Volume profile and delta are candle-based estimates.</div>

@@ -363,7 +363,7 @@
     var j = d.data, n = j.candles.length;
     $('dAuto').classList.toggle('on', !!vp.auto); $('dAuto').setAttribute('aria-pressed', String(!!vp.auto));
     $('dStatus').innerHTML = n + ' / ' + j.timing.maxCandles + ' CANDLES · ' + (vp.auto ? '<span class="auto">AUTO-FOLLOW</span>' : 'MANUAL VIEW · PRESS AUTO') +
-      (j.timing.provisionalCandle ? ' · LAST CANDLE PROVISIONAL' : '') + (j.timing.historyNote ? ' · ' + esc(j.timing.historyNote) : '') + (j.demo ? ' · DEMO' : '');
+      (j.timing.provisionalCandle ? ' · CANDLE FORMING' : '') + (j.timing.historyNote ? ' · ' + esc(j.timing.historyNote) : '') + (j.demo ? ' · DEMO' : '');
   }
 
   function patchDetailLive(s) {
