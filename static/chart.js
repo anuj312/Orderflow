@@ -95,7 +95,7 @@
     // Controls now live in bars above/below the canvas, so only the OHLC readout needs top space.
     var axisW = 78, axisH = 24, top = 38;
     var plotW = w - axisW, plotH = h - axisH - top;
-    var volH = Math.round(plotH * 0.16);
+    var volH = Math.round(plotH * 0.12);   // volume pane: 12% of height (was 16%) so candles get more room
     return { w: w, h: h, top: top, plotW: plotW, priceH: plotH - volH - 6, volTop: top + plotH - volH, volH: volH, axisW: axisW };
   };
 
@@ -200,7 +200,7 @@
       if (this.layers.vwap && c.vwap != null) { lo = Math.min(lo, c.vwap); hi = Math.max(hi, c.vwap); }
     }
     if (!isFinite(lo)) return;
-    var pad = (hi - lo) * 0.07 || hi * 0.002; lo -= pad; hi += pad;
+    var pad = (hi - lo) * 0.035 || hi * 0.002; lo -= pad; hi += pad;   // 3.5% headroom (was 7%): taller candles
     var Y = function (p) { return L.top + (hi - p) / (hi - lo) * L.priceH; };
     var occupied = [];
     function place(x, y, wdt, hgt) {
